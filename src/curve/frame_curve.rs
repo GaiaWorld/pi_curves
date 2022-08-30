@@ -4,14 +4,14 @@ use super::{frame::{FrameDataValue, KeyFrameCurveValue, KeyFrame}, FrameIndex, F
 
 #[derive(Debug)]
 pub enum EFrameCurveType {
-    /// 线性
-    Linear      = 0x01,
+    /// 关键帧数值
+    FrameValues         = 0x00,
+    /// Easing曲线
+    EasingCurve         = 0x01,
     /// Hermit 曲线
-    MinMaxCurve = 0x02,
-    /// 缓动描述
-    Easing      = 0x03,
+    MinMaxCurve         = 0x02,
     /// 2D 三次贝塞尔曲线
-    CubicBezier = 0x04,
+    CubicBezierCurve    = 0x03,
 }
 
 pub struct FrameCurve<T: FrameDataValue> {
@@ -20,22 +20,21 @@ pub struct FrameCurve<T: FrameDataValue> {
     /// 缓动类型 [Easing 缓动类型]
     easing_mode: EEasingMode,
     /// 曲线拓展数据 [CubicBezier的参数]
-    extend_args: [KeyFrameCurveValue; 4],
+    cubic_bezier_args: [KeyFrameCurveValue; 4],
     /// 设计每秒多少帧
     pub design_frame_per_second: FramePerSecond,
     /// 
     /// 关键帧数组 [Linear]
     /// 关键帧数组 [MinMaxCurve]
     /// 
-    pub key_args: Vec<KeyFrame>,
+    pub curve_values: Vec<KeyFrame>,
     /// 帧序号值
     pub frames: Vec<FrameIndex>,
-
+    pub values: Vec<T>,
     /// 动画目标数据的起始值
-    pub value_offset: T,
-
+    pub value_offset: Option<T>,
     /// 动画目标数据的变化域值
-    pub value_scalar: T,
+    pub value_scalar: Option<T>,
     /// 起始帧
     pub min_frame: FrameIndex,
     /// 结束帧
@@ -52,53 +51,45 @@ impl<T: FrameDataValue> FrameCurve<T> {
         let target_frame = target_frame * self.design_frame_per_second as KeyFrameCurveValue;
         call(&self, target_frame)
     }
-    
-    /// 曲线 - 线性插值曲线
+    /// 曲线 - 线性插值帧 - 无曲线描述,仅关键 帧-值
     /// 
-    /// * [from] - 动画数值起点
-    /// * [scalar] - 动画数值变化域值
-    /// 
-    pub fn curve_linear(from: T, scalar: T, design_frame_per_second: FramePerSecond) -> FrameCurve<T> {
+    pub fn curve_frame_values(design_frame_per_second: FramePerSecond) -> FrameCurve<T> {
         FrameCurve {
-            curve: EFrameCurveType::Linear,
+            curve: EFrameCurveType::FrameValues,
             easing_mode: EEasingMode::None,
-            extend_args: [0., 0., 1., 1.],
-            key_args: Vec::default(),
-            value_offset: from,
-            value_scalar: scalar,
+            cubic_bezier_args: [0., 0., 1., 1.],
+            frames: vec![],
+            curve_values: Vec::default(),
+            values: Vec::default(),
+            value_offset: None,
+            value_scalar: None,
             min_frame: FrameIndex::MAX,
             max_frame: FrameIndex::MIN,
             design_frame_per_second,
             frame_number: 0,
-            frames: vec![],
-            call: FrameCurve::get_curve_call(EFrameCurveType::Linear),
-            easing: get_easing_call(&EEasingMode::None),
+            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            easing: get_easing_call(EEasingMode::None)
         }
     }
 
-    /// 曲线关键帧 - 线性插值曲线
+    /// 曲线关键帧 - 线性插值帧 - 无曲线描述,仅关键 帧-值
     /// 
     /// * [framecurve] - 目标曲线
     /// * [frame] - 帧位置
     /// * [value] - 帧数值
     /// 
-    pub fn curve_linear_frame(mut framecurve: FrameCurve<T>, frame: FrameIndex, value: KeyFrameCurveValue) -> FrameCurve<T> {
+    pub fn curve_frame_values_frame(&mut self, frame: FrameIndex, value: T) {
+        let index = self.frames.binary_search(&frame).unwrap_or_else(|x| x);
+        self.frames.insert(index, frame);
+        self.values.insert(index, value);
 
-        let keyframe = KeyFrame::new(value, [0., 0.]);
+        let len = self.frames.len();
+        let min = self.frames[0];
+        let max = self.frames[len - 1];
 
-        let index = framecurve.frames.binary_search(&frame).unwrap_or_else(|x| x);
-        framecurve.frames.insert(index, frame);
-        framecurve.key_args.insert(index, keyframe);
-
-        let len = framecurve.frames.len();
-        let min = framecurve.frames[0];
-        let max = framecurve.frames[len - 1];
-
-        framecurve.min_frame = min;
-        framecurve.max_frame = max;
-        framecurve.frame_number = max - min;
-
-        return framecurve;
+        self.min_frame = min;
+        self.max_frame = max;
+        self.frame_number = max - min;
     }
 
     /// 曲线 -  Easing 缓动 - result = from + scalar * easing(t)
@@ -110,19 +101,20 @@ impl<T: FrameDataValue> FrameCurve<T> {
     /// 
     pub fn curve_easing(from: T, scalar: T, frame_count: FrameIndex, design_frame_per_second: FramePerSecond, easing_mode: EEasingMode) -> FrameCurve<T> {
         FrameCurve {
-            curve: EFrameCurveType::Easing,
+            curve: EFrameCurveType::EasingCurve,
             easing_mode,
-            extend_args: [0., 0., 1., 1.],
-            key_args: Vec::default(),
-            value_offset: from,
-            value_scalar: scalar,
+            cubic_bezier_args: [0., 0., 1., 1.],
+            frames: vec![],
+            curve_values: Vec::default(),
+            values: Vec::default(),
+            value_offset: Some(from),
+            value_scalar: Some(scalar),
             min_frame: 0,
             max_frame: frame_count,
             frame_number: frame_count,
             design_frame_per_second: design_frame_per_second,
-            frames: vec![],
-            call: FrameCurve::get_curve_call(EFrameCurveType::Easing),
-            easing: get_easing_call(&easing_mode),
+            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            easing: get_easing_call(easing_mode)
         }
     }
 
@@ -134,22 +126,22 @@ impl<T: FrameDataValue> FrameCurve<T> {
     /// 
     pub fn curve_cubic_bezier(from: T, scalar: T, frame_count: FrameIndex, design_frame_per_second: FramePerSecond, x1: KeyFrameCurveValue, y1: KeyFrameCurveValue, x2: KeyFrameCurveValue, y2: KeyFrameCurveValue) -> FrameCurve<T> {
         FrameCurve {
-            curve: EFrameCurveType::CubicBezier,
+            curve: EFrameCurveType::CubicBezierCurve,
             easing_mode: EEasingMode::None,
-            extend_args: [x1, y1, x2, y2],
-            key_args: Vec::default(),
-            value_offset: from,
-            value_scalar: scalar,
+            cubic_bezier_args: [x1, y1, x2, y2],
+            frames: vec![],
+            curve_values: Vec::default(),
+            values: Vec::default(),
+            value_offset: Some(from),
+            value_scalar: Some(scalar),
             min_frame: 0,
             max_frame: frame_count,
             frame_number: frame_count,
             design_frame_per_second: design_frame_per_second,
-            frames: vec![],
-            call: FrameCurve::get_curve_call(EFrameCurveType::CubicBezier),
-            easing: get_easing_call(&EEasingMode::None),
+            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            easing: get_easing_call(EEasingMode::None)
         }
     }
-
 
     /// 曲线 - Hermit插值曲线
     /// 
@@ -160,17 +152,18 @@ impl<T: FrameDataValue> FrameCurve<T> {
         FrameCurve {
             curve: EFrameCurveType::MinMaxCurve,
             easing_mode: EEasingMode::None,
-            extend_args: [0., 0., 1., 1.],
-            key_args: Vec::default(),
-            value_offset: from,
-            value_scalar: scalar,
+            cubic_bezier_args: [0., 0., 1., 1.],
+            frames: vec![],
+            curve_values: Vec::default(),
+            values: Vec::default(),
+            value_offset: Some(from),
+            value_scalar: Some(scalar),
             min_frame: FrameIndex::MAX,
             max_frame: FrameIndex::MIN,
             frame_number: 0,
             design_frame_per_second,
-            frames: vec![],
-            call: FrameCurve::get_curve_call(EFrameCurveType::MinMaxCurve),
-            easing: get_easing_call(&EEasingMode::None),
+            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            easing: get_easing_call(EEasingMode::None)
         }
     }
 
@@ -182,46 +175,43 @@ impl<T: FrameDataValue> FrameCurve<T> {
     /// * [intangent] - In Tangent
     /// * [outtangent] - Out Tangent
     /// 
-    pub fn curve_minmax_curve_frame(mut framecurve: FrameCurve<T>, frame: FrameIndex, value: KeyFrameCurveValue, intangent: KeyFrameCurveValue, outtangent: KeyFrameCurveValue) -> FrameCurve<T> {
+    pub fn curve_minmax_curve_frame(&mut self, frame: FrameIndex, value: KeyFrameCurveValue, intangent: KeyFrameCurveValue, outtangent: KeyFrameCurveValue) {
 
         let keyframe = KeyFrame::new(value, [intangent, outtangent]);
 
-        let index = framecurve.frames.binary_search(&frame).unwrap_or_else(|x| x);
-        framecurve.frames.insert(index, frame);
-        framecurve.key_args.insert(index, keyframe);
+        let index = self.frames.binary_search(&frame).unwrap_or_else(|x| x);
+        self.frames.insert(index, frame);
+        self.curve_values.insert(index, keyframe);
 
-        let len = framecurve.frames.len();
-        let min = framecurve.frames[0];
-        let max = framecurve.frames[len - 1];
+        let len = self.frames.len();
+        let min = self.frames[0];
+        let max = self.frames[len - 1];
 
-        framecurve.min_frame = min;
-        framecurve.max_frame = max;
-        framecurve.frame_number = max - min;
-
-        return framecurve;
+        self.min_frame = min;
+        self.max_frame = max;
+        self.frame_number = max - min;
     }
 
     pub fn get_curve_call(mode: EFrameCurveType) -> fn(&FrameCurve<T>, KeyFrameCurveValue) -> T {
         match mode {
-            EFrameCurveType::Linear => FrameCurve::<T>::linear,
             EFrameCurveType::MinMaxCurve => FrameCurve::<T>::minmaxcurve,
-            EFrameCurveType::Easing => FrameCurve::<T>::easing,
-            EFrameCurveType::CubicBezier => FrameCurve::<T>::cubebezier,
+            EFrameCurveType::EasingCurve => FrameCurve::<T>::easing,
+            EFrameCurveType::CubicBezierCurve => FrameCurve::<T>::cubebezier,
+            EFrameCurveType::FrameValues => FrameCurve::<T>::frame_values,
         }
     }
 
-    pub fn linear(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
+    pub fn frame_values(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
         let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
         let frame1 = curve.frames[pre];
-        let value1 = curve.key_args[pre].value();
+        let value1 = curve.values[pre];
         
         let frame2 = curve.frames[next];
-        let value2 = curve.key_args[next].value();
-
+        let value2 = curve.values[next];
 
         let amount = KeyFrameCurveValue::clamp((target_frame - frame1 as KeyFrameCurveValue) / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue), 0., 1.);
 
-        curve.value_offset + curve.value_scalar.scale(value1 + (value2 - value1) * amount)
+        value1.interpolate(&value2, amount)
     }
 
     pub fn minmaxcurve(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
@@ -230,36 +220,31 @@ impl<T: FrameDataValue> FrameCurve<T> {
         let frame1 = curve.frames[pre];
         let frame2 = curve.frames[next];
 
-        let value1 = curve.key_args[pre].value();
-        let value2 = curve.key_args[next].value();
+        let value1 = curve.curve_values[pre].value();
+        let value2 = curve.curve_values[next].value();
 
-        let tangent1 = curve.key_args[pre].outtangent();
-        let tangent2 = curve.key_args[next].intangent();
+        let tangent1 = curve.curve_values[pre].outtangent();
+        let tangent2 = curve.curve_values[next].intangent();
 
 
         let amount = KeyFrameCurveValue::clamp((target_frame - frame1 as KeyFrameCurveValue) / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue), 0., 1.);
         let amount = hermite::hermite(value1, tangent1, value2, tangent2, amount);
 
-        curve.value_offset + curve.value_scalar.scale(amount)
+        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
     }
 
     pub fn easing(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
         let amount = KeyFrameCurveValue::clamp(target_frame / curve.frame_number as KeyFrameCurveValue, 0., 1.);
 
-
-        let call = &curve.easing;
-
-        let amount = call(amount);
-
-        curve.value_offset + curve.value_scalar.scale(amount)
+        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
     }
 
     pub fn cubebezier(curve: &FrameCurve<T>, target_frame: f32) -> T {
         let amount = KeyFrameCurveValue::clamp(target_frame / curve.frame_number as KeyFrameCurveValue, 0., 1.);
 
-        let amount = bezier::cubic_bezier(curve.extend_args[0], curve.extend_args[1], curve.extend_args[2], curve.extend_args[3], amount);
+        let amount = bezier::cubic_bezier(curve.cubic_bezier_args[0], curve.cubic_bezier_args[1], curve.cubic_bezier_args[2], curve.cubic_bezier_args[3], amount);
 
-        curve.value_offset + curve.value_scalar.scale(amount)
+        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
     }
 
     /// 获取目标帧的前后帧在帧数组中的序号

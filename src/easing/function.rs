@@ -40,7 +40,7 @@ pub fn easing_call<T: RealField + Copy>(x: T, mode: &EEasingMode) -> T {
     }
 }
 
-pub fn get_easing_call<T: RealField + Copy>(mode: &EEasingMode) -> fn(T) -> T {
+pub fn get_easing_call<T: RealField + Copy>(mode: EEasingMode) -> fn(T) -> T {
     match mode {
         EEasingMode::None           => linear_in        ,
         EEasingMode::BackIn         => back_in          ,

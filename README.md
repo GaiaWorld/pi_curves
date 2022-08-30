@@ -1,6 +1,7 @@
 # pi_curves
 
 * Curve calculation function library with simple dependencies
+  * Step Curves
   * Hermite Curves
   * Bezier Curves
   * Easing Functions

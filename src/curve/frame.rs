@@ -35,9 +35,6 @@ impl KeyFrame {
 pub trait FrameValueScale {
     fn scale(&self, rhs: KeyFrameCurveValue) -> Self;
 }
-pub trait FrameValueAdd {
-    fn add(&self, rhs: &Self) -> Self;
-}
 
 pub type KeyFrameDataType = usize;
 
@@ -65,5 +62,10 @@ impl KeyFrameDataTypeAllocator {
     }
 }
 
+// pub trait FrameDataValue: Clone + Copy + FrameValueScale + FrameValueInterpolate + Add<Output = Self> {
+// }
 pub trait FrameDataValue: Clone + Copy + FrameValueScale + Add<Output = Self> {
+    fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
+        self.scale(1.0 - amount) + rhs.scale(amount)
+    }
 }
