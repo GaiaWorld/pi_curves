@@ -113,7 +113,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             max_frame: frame_count,
             frame_number: frame_count,
             design_frame_per_second: design_frame_per_second,
-            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            call: Self::get_curve_call(EFrameCurveType::EasingCurve),
             easing: get_easing_call(easing_mode)
         }
     }
@@ -138,7 +138,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             max_frame: frame_count,
             frame_number: frame_count,
             design_frame_per_second: design_frame_per_second,
-            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            call: Self::get_curve_call(EFrameCurveType::CubicBezierCurve),
             easing: get_easing_call(EEasingMode::None)
         }
     }
@@ -162,7 +162,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             max_frame: FrameIndex::MIN,
             frame_number: 0,
             design_frame_per_second,
-            call: Self::get_curve_call(EFrameCurveType::FrameValues),
+            call: Self::get_curve_call(EFrameCurveType::MinMaxCurve),
             easing: get_easing_call(EEasingMode::None)
         }
     }

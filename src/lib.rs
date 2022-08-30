@@ -17,6 +17,12 @@ pub mod steps;
 #[derive(Debug, Clone, Copy)]
 pub struct AmountParam(pub KeyFrameCurveValue, pub KeyFrameCurveValue, pub KeyFrameCurveValue, pub KeyFrameCurveValue);
 
+impl Default for AmountParam {
+    fn default() -> Self {
+        Self( 0., 0., 0., 0. )
+    }
+}
+
 /// 进度计算模式
 #[derive(Debug, Clone, Copy)]
 pub enum EAmountMode {
