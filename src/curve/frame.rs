@@ -69,3 +69,59 @@ pub trait FrameDataValue: Clone + Copy + FrameValueScale + Add<Output = Self> {
         self.scale(1.0 - amount) + rhs.scale(amount)
     }
 }
+
+/// f32
+impl FrameValueScale for f32 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        self * rhs
+    }
+}
+impl FrameDataValue for f32 {}
+
+/// f64
+impl FrameValueScale for f64 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        self * rhs as f64
+    }
+}
+impl FrameDataValue for f64 {}
+
+/// u8
+impl FrameValueScale for u8 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (*self as KeyFrameCurveValue * rhs) as u8
+    }
+}
+impl FrameDataValue for u8 {}
+
+/// u16
+impl FrameValueScale for u16 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (*self as KeyFrameCurveValue * rhs) as u16
+    }
+}
+impl FrameDataValue for u16 {}
+
+/// u32
+impl FrameValueScale for u32 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (*self as KeyFrameCurveValue * rhs) as u32
+    }
+}
+impl FrameDataValue for u32 {}
+
+/// u64
+impl FrameValueScale for u64 {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (*self as KeyFrameCurveValue * rhs) as u64
+    }
+}
+impl FrameDataValue for u64 {}
+
+/// usize
+impl FrameValueScale for usize {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (*self as KeyFrameCurveValue * rhs) as usize
+    }
+}
+impl FrameDataValue for usize {}
