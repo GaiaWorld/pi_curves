@@ -204,10 +204,10 @@ impl<T: FrameDataValue> FrameCurve<T> {
     pub fn frame_values(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
         let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
         let frame1 = curve.frames[pre];
-        let value1 = curve.values[pre];
+        let value1 = curve.values.get(pre).unwrap();
         
         let frame2 = curve.frames[next];
-        let value2 = curve.values[next];
+        let value2 = curve.values.get(next).unwrap();
 
         let amount = KeyFrameCurveValue::clamp((target_frame - frame1 as KeyFrameCurveValue) / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue), 0., 1.);
 
@@ -230,13 +230,13 @@ impl<T: FrameDataValue> FrameCurve<T> {
         let amount = KeyFrameCurveValue::clamp((target_frame - frame1 as KeyFrameCurveValue) / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue), 0., 1.);
         let amount = hermite::hermite(value1, tangent1, value2, tangent2, amount);
 
-        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().clone() + curve.value_scalar.as_ref().unwrap().scale(amount)
     }
 
     pub fn easing(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
         let amount = KeyFrameCurveValue::clamp(target_frame / curve.frame_number as KeyFrameCurveValue, 0., 1.);
 
-        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().clone() + curve.value_scalar.as_ref().unwrap().scale(amount)
     }
 
     pub fn cubebezier(curve: &FrameCurve<T>, target_frame: f32) -> T {
@@ -244,7 +244,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
 
         let amount = bezier::cubic_bezier(curve.cubic_bezier_args[0], curve.cubic_bezier_args[1], curve.cubic_bezier_args[2], curve.cubic_bezier_args[3], amount);
 
-        curve.value_offset.unwrap() + curve.value_scalar.unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().clone() + curve.value_scalar.as_ref().unwrap().scale(amount)
     }
 
     /// 获取目标帧的前后帧在帧数组中的序号

@@ -64,7 +64,11 @@ impl KeyFrameDataTypeAllocator {
 
 // pub trait FrameDataValue: Clone + Copy + FrameValueScale + FrameValueInterpolate + Add<Output = Self> {
 // }
-pub trait FrameDataValue: Clone + Copy + FrameValueScale + Add<Output = Self> {
+pub trait FrameDataValue: Clone + FrameValueScale + Add<Output = Self> {
+    fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
+}
+
+impl<T: Clone + FrameValueScale + Add<Output = Self>> FrameDataValue for T {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.scale(1.0 - amount) + rhs.scale(amount)
     }
@@ -76,7 +80,6 @@ impl FrameValueScale for f32 {
         self * rhs
     }
 }
-impl FrameDataValue for f32 {}
 
 /// f64
 impl FrameValueScale for f64 {
@@ -84,7 +87,6 @@ impl FrameValueScale for f64 {
         self * rhs as f64
     }
 }
-impl FrameDataValue for f64 {}
 
 /// u8
 impl FrameValueScale for u8 {
@@ -92,7 +94,6 @@ impl FrameValueScale for u8 {
         (*self as KeyFrameCurveValue * rhs) as u8
     }
 }
-impl FrameDataValue for u8 {}
 
 /// u16
 impl FrameValueScale for u16 {
@@ -100,7 +101,6 @@ impl FrameValueScale for u16 {
         (*self as KeyFrameCurveValue * rhs) as u16
     }
 }
-impl FrameDataValue for u16 {}
 
 /// u32
 impl FrameValueScale for u32 {
@@ -108,7 +108,6 @@ impl FrameValueScale for u32 {
         (*self as KeyFrameCurveValue * rhs) as u32
     }
 }
-impl FrameDataValue for u32 {}
 
 /// u64
 impl FrameValueScale for u64 {
@@ -116,7 +115,6 @@ impl FrameValueScale for u64 {
         (*self as KeyFrameCurveValue * rhs) as u64
     }
 }
-impl FrameDataValue for u64 {}
 
 /// usize
 impl FrameValueScale for usize {
@@ -124,4 +122,3 @@ impl FrameValueScale for usize {
         (*self as KeyFrameCurveValue * rhs) as usize
     }
 }
-impl FrameDataValue for usize {}
