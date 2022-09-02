@@ -1,6 +1,8 @@
 //! 缓动处理
 
-#[derive(Debug, Clone, Copy)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum EEasingMode {
     None            = 0x00,
 
