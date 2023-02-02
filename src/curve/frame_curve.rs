@@ -76,6 +76,9 @@ impl<T: Debug + FrameDataValue> Debug for FrameCurve<T> {
 }
 
 impl<T: FrameDataValue> FrameCurve<T> {
+    pub fn size(&self) -> usize {
+        1 + 1 + 4 * 4 + 2 + 2 + 2 + 2 + 8 + 8
+    }
     pub fn interple(&self, target_frame: KeyFrameCurveValue) -> T {
         let call = &self.call;
         let target_frame = target_frame * self.design_frame_per_second as KeyFrameCurveValue;
@@ -318,8 +321,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
 
         let amount = hermite::hermite(value1, tangent1, value2, tangent2, amount);
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     pub fn easing(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
@@ -334,8 +336,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             1.,
         );
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     pub fn cubebezier(curve: &FrameCurve<T>, target_frame: f32) -> T {
@@ -362,8 +363,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             curve.cubic_bezier_args[3],
         );
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     /// 获取目标帧的前后帧在帧数组中的序号
