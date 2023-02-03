@@ -64,13 +64,21 @@ impl KeyFrameDataTypeAllocator {
 
 // pub trait FrameDataValue: Clone + Copy + FrameValueScale + FrameValueInterpolate + Add<Output = Self> {
 // }
-pub trait FrameDataValue: Clone + FrameValueScale + Add<Output = Self> {
+pub trait FrameDataValue: Clone {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
+    fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
+    fn size() -> usize;
 }
 
 impl<T: Clone + FrameValueScale + Add<Output = Self>> FrameDataValue for T {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.scale(1.0 - amount) + rhs.scale(amount)
+    }
+    fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
+        self.clone() + rhs.scale(amount)
+    }
+    fn size() -> usize {
+        8
     }
 }
 

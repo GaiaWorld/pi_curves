@@ -82,6 +82,9 @@ impl<T: Debug + FrameDataValue> Debug for FrameCurve<T> {
 }
 
 impl<T: FrameDataValue> FrameCurve<T> {
+    pub fn size(&self) -> usize {
+        1 + 1 + 4 * 4 + 2 + 2 + 2 + 2 + 8 + 8
+    }
     pub fn interple(&self, target_frame: KeyFrameCurveValue) -> T {
         let call = &self.call;
         let target_frame = target_frame * self.design_frame_per_second as KeyFrameCurveValue;
@@ -269,7 +272,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
         let frame2 = curve.frames[next];
         let value2 = curve.values.get(next).unwrap();
 
-        let amount = if frame1 == frame2 {
+        let mut amount = if frame1 == frame2 {
             0.0
         } else {
             KeyFrameCurveValue::clamp(
@@ -288,6 +291,9 @@ impl<T: FrameDataValue> FrameCurve<T> {
             amount,
         );
 
+        let call = &curve.easing;
+        amount = call(amount);
+
         value1.interpolate(&value2, amount)
     }
 
@@ -303,7 +309,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
         let tangent1 = curve.curve_values[pre].outtangent();
         let tangent2 = curve.curve_values[next].intangent();
 
-        let amount = if frame1 == frame2 {
+        let mut amount = if frame1 == frame2 {
             0.0
         } else {
             KeyFrameCurveValue::clamp(
@@ -322,10 +328,12 @@ impl<T: FrameDataValue> FrameCurve<T> {
             amount,
         );
 
+        let call = &curve.easing;
+        amount = call(amount);
+
         let amount = hermite::hermite(value1, tangent1, value2, tangent2, amount);
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     pub fn easing(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
@@ -334,22 +342,27 @@ impl<T: FrameDataValue> FrameCurve<T> {
             target_frame,
             curve.frame_number
         );
-        let amount = KeyFrameCurveValue::clamp(
+        let mut amount = KeyFrameCurveValue::clamp(
             target_frame / curve.frame_number as KeyFrameCurveValue,
             0.,
             1.,
         );
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        let call = &curve.easing;
+        amount = call(amount);
+
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     pub fn cubebezier(curve: &FrameCurve<T>, target_frame: f32) -> T {
-        let amount = KeyFrameCurveValue::clamp(
+        let mut amount = KeyFrameCurveValue::clamp(
             target_frame / curve.frame_number as KeyFrameCurveValue,
             0.,
             1.,
         );
+
+        let call = &curve.easing;
+        amount = call(amount);
 
         let amount = bezier::cubic_bezier(
             curve.cubic_bezier_args[0],
@@ -368,8 +381,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
             curve.cubic_bezier_args[3],
         );
 
-        curve.value_offset.as_ref().unwrap().clone()
-            + curve.value_scalar.as_ref().unwrap().scale(amount)
+        curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
     }
 
     /// 获取目标帧的前后帧在帧数组中的序号
