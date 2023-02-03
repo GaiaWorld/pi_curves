@@ -56,6 +56,12 @@ pub struct FrameCurve<T: FrameDataValue> {
     pub easing: fn(KeyFrameCurveValue) -> KeyFrameCurveValue,
 }
 
+impl<F: FrameDataValue> AsRef<FrameCurve<F>> for FrameCurve<F> {
+    fn as_ref(&self) -> &FrameCurve<F> {
+        self
+    }
+}
+
 impl<T: Debug + FrameDataValue> Debug for FrameCurve<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FrameCurve")
