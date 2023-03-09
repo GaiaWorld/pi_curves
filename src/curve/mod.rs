@@ -16,6 +16,7 @@ pub enum ErrorCurve {
 
 pub mod frame;
 pub mod frame_curve;
+pub mod curves;
 
 
 pub trait Repeat<N> {

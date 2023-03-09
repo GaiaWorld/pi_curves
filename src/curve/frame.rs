@@ -8,27 +8,27 @@ pub type KeyFrameCurveValue = f32;
 
 /// 构建帧数据结构
 #[derive(Debug)]
-pub struct KeyFrame {
+pub struct CurveFrameValue<T: FrameDataValue> {
     /// 帧数据值
-    value: KeyFrameCurveValue,
-    args: [KeyFrameCurveValue; 2]
+    value: T,
+    args: [T; 2]
 }
 
-impl KeyFrame {
-    pub fn new(value: KeyFrameCurveValue, args: [KeyFrameCurveValue; 2]) -> Self {
-        KeyFrame {
+impl<T: FrameDataValue> CurveFrameValue<T> {
+    pub fn new(value: T, args: [T; 2]) -> Self {
+        CurveFrameValue {
             value,
             args
         }
     }
-    pub fn value(&self) -> KeyFrameCurveValue {
-        self.value
+    pub fn value(&self) -> &T {
+        &self.value
     }
-    pub fn intangent(&self) -> KeyFrameCurveValue {
-        self.args[0]
+    pub fn intangent(&self) -> &T {
+        &self.args[0]
     }
-    pub fn outtangent(&self) -> KeyFrameCurveValue {
-        self.args[1]
+    pub fn outtangent(&self) -> &T {
+        &self.args[1]
     }
 }
 
@@ -67,12 +67,27 @@ impl KeyFrameDataTypeAllocator {
 pub trait FrameDataValue: Clone {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
     fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
+    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue) -> Self;
     fn size() -> usize;
 }
 
 impl<T: Clone + FrameValueScale + Add<Output = Self>> FrameDataValue for T {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.scale(1.0 - amount) + rhs.scale(amount)
+    }
+    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue) -> Self {
+        let _1 = 1 as KeyFrameCurveValue;
+        let _2 = 2 as KeyFrameCurveValue;
+        let _3 = 3 as KeyFrameCurveValue;
+
+        let squared = amount * amount;
+        let cubed = amount * squared;
+        let part1 = ((_2 * cubed) - (_3 * squared)) + _1;
+        let part2 = (-_2 * cubed) + (_3 * squared);
+        let part3 = (cubed - (_2 * squared)) + amount;
+        let part4 = cubed - squared;
+
+        return (((value1.scale(part1)) + (value2.scale(part2))) + (tangent1.scale(part3))) + (tangent2.scale(part4));
     }
     fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.clone() + rhs.scale(amount)
