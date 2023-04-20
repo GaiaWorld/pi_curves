@@ -1,8 +1,6 @@
 //!
 //! 关键帧数据结构
 
-use super::easing::{EEasingMode, function::{easing_call, get_easing_call}};
-
 pub type FrameIndex = u16;
 pub type FramePerSecond = u16;
 

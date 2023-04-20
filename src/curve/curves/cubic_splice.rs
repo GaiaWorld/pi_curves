@@ -13,7 +13,7 @@ pub fn interplate_cubic_splice<T: FrameDataValue>(curve: &FrameCurve<T>, target_
     let tangent1 = curve.cubic_spline_values[pre].outtangent();
     let tangent2 = curve.cubic_spline_values[next].intangent();
 
-    let mut amount = if frame1 == frame2 {
+    let amount = if frame1 == frame2 {
         0.0
     } else {
         KeyFrameCurveValue::clamp(

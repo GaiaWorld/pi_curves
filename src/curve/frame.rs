@@ -1,7 +1,7 @@
 
-use std::{ops::Add, fmt::Display};
+use std::ops::Add;
 
-use super::{FrameIndex, ErrorCurve};
+use super::ErrorCurve;
 
 /// 关键帧曲线数值类型
 pub type KeyFrameCurveValue = f32;

@@ -1,4 +1,4 @@
-use crate::{easing::EEasingMode, curve::frame::{FrameDataValue, KeyFrameCurveValue}};
+use crate::{curve::frame::{FrameDataValue, KeyFrameCurveValue}};
 
 use super::FrameCurve;
 
@@ -46,7 +46,7 @@ pub fn interplate_frame_values_step<T: FrameDataValue>(curve: &FrameCurve<T>, ta
     let frame2 = curve.frames[next];
     let value2 = curve.values.get(next).unwrap();
 
-    let mut amount = if frame1 == frame2 {
+    let amount = if frame1 == frame2 {
         0.0
     } else {
         KeyFrameCurveValue::clamp(
