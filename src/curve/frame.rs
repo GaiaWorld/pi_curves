@@ -1,6 +1,8 @@
 
 use std::ops::Add;
 
+use nalgebra::{Vector3, Vector4, Vector2};
+
 use super::ErrorCurve;
 
 /// 关键帧曲线数值类型
@@ -143,5 +145,26 @@ impl FrameValueScale for u64 {
 impl FrameValueScale for usize {
     fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
         (*self as KeyFrameCurveValue * rhs) as usize
+    }
+}
+
+/// usize
+impl FrameValueScale for Vector2<f32> {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (self * rhs) as Vector2<f32>
+    }
+}
+
+/// usize
+impl FrameValueScale for Vector3<f32> {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (self * rhs) as Vector3<f32>
+    }
+}
+
+/// usize
+impl FrameValueScale for Vector4<f32> {
+    fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
+        (self * rhs) as Vector4<f32>
     }
 }
