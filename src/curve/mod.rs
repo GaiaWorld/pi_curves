@@ -1,8 +1,8 @@
 //!
 //! 关键帧数据结构
 
-pub type FrameIndex = u16;
-pub type FramePerSecond = u16;
+pub type FrameIndex = u32;
+pub type FramePerSecond = u32;
 
 pub type InOutTangent<T> = Vec<T>;
 pub type CubicBezier<T> = Vec<T>;
