@@ -20,16 +20,26 @@ pub fn cubic_bezier<T: RealField + Copy>(x1: T, y1: T, x2: T, y2: T, t: T) -> T 
 
     let mut refined_t = t;
 
-    for _ in 0..4 {
+    for _ in 0..5 {
         let refined_t2 = refined_t * refined_t;
         let refined_t3 = refined_t2 * refined_t;
 
         let x = f0 * refined_t3 + f1 * refined_t2 + f2 * refined_t;
         let slop = _1 / (_3 * f0 * refined_t2 + _2 * f1 * refined_t + f2);
 
-        refined_t -= (x - x) * slop;
+        // println!("A {:?}", refined_t);
+        refined_t -= (x - t) * slop;
+        // println!("B {:?}", refined_t);
         refined_t = T::min(_1, T::max(_0, refined_t));
+        // println!("C {:?}", refined_t);
     };
 
+    println!("{:?}", [refined_t]);
+
     _3 * T::powi(_1 - refined_t, 2) * refined_t * _y1 + _3 * (_1 - refined_t) * T::powi(refined_t, 2) * _y2 + T::powi(refined_t, 3)
+}
+
+#[test]
+pub fn test_cubc_bezier() {
+
 }
