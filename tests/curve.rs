@@ -6,7 +6,7 @@ mod test_frame {
 
     use std::ops::Add;
 
-    use pi_curves::{curve::{frame::{FrameDataValue, KeyFrameCurveValue, FrameValueScale}, frame_curve::FrameCurve, FrameIndex}, easing::{EEasingMode, function::sine_in_out}};
+    use pi_curves::{curve::{frame::{FrameDataValue, KeyFrameCurveValue, FrameValueScale}, frame_curve::FrameCurve, FrameIndex}, easing::{EEasingMode, function::sine_in_out}, amount::AnimationAmountCalc};
     use test::Bencher;
 
     #[bench]
@@ -30,7 +30,7 @@ mod test_frame {
         b.iter(move || {
             let mut v = 0.;
             for i in 0..1_000_000 {
-                v = v + curves.get(i).unwrap().interple(10.0);
+                v = v + curves.get(i).unwrap().interple(10.0, &AnimationAmountCalc::default());
             }
         });
     }
@@ -53,7 +53,7 @@ mod test_frame {
         b.iter(move || {
             let mut v = 0.;
             for i in 0..1_000_000 {
-                v = v + curves.get(i).unwrap().interple(10.0);
+                v = v + curves.get(i).unwrap().interple(10.0, &AnimationAmountCalc::default());
             }
         });
     }   
@@ -80,7 +80,7 @@ mod test_frame {
             for i in 0..1_000_000 {
                 let frames = curves.get(i).unwrap();
 
-                v += frames.interple(amount);
+                v += frames.interple(amount, &AnimationAmountCalc::default());
 
                 // amount = target_frame / frames.frame_number as f32;
                 // amount = f32::clamp(amount, 0., 1.0);
@@ -110,7 +110,7 @@ mod test_frame {
         b.iter(move || {
             let mut v = 0.;
             for i in 0..1_000_000 {
-                v = v + curves.get(i).unwrap().interple(10.0);
+                v = v + curves.get(i).unwrap().interple(10.0, &AnimationAmountCalc::default());
             }
         });
     }   

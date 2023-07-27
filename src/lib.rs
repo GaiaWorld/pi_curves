@@ -10,6 +10,7 @@ pub mod bezier;
 pub mod easing;
 pub mod curve;
 pub mod steps;
+pub mod amount;
 
 /// 进度计算参数
 /// 对于 Step 模式 第一个参数为 步进数目

@@ -1,7 +1,7 @@
-use crate::curve::{frame::{FrameDataValue, KeyFrameCurveValue}, curves::FrameCurve};
+use crate::{curve::{frame::{FrameDataValue, KeyFrameCurveValue}, curves::FrameCurve}, amount::AnimationAmountCalc};
 
 
-pub fn interplate_cubic_splice<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
+pub fn interplate_cubic_splice<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
 
     let frame1 = curve.frames[pre];
@@ -17,8 +17,10 @@ pub fn interplate_cubic_splice<T: FrameDataValue>(curve: &FrameCurve<T>, target_
         0.0
     } else {
         KeyFrameCurveValue::clamp(
+            amountcalc.calc(
             (target_frame - frame1 as KeyFrameCurveValue)
-                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue),
+                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue)
+            ),
             0.,
             1.,
         )

@@ -1,10 +1,10 @@
-use crate::{curve::frame::{FrameDataValue, KeyFrameCurveValue}};
+use crate::{curve::frame::{FrameDataValue, KeyFrameCurveValue}, amount::AnimationAmountCalc};
 
 use super::FrameCurve;
 
 
 
-pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
+pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
     let frame1 = curve.frames[pre];
     let value1 = curve.values.get(pre).unwrap();
@@ -15,9 +15,12 @@ pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_
     let mut amount = if frame1 == frame2 {
         0.0
     } else {
+        
         KeyFrameCurveValue::clamp(
-            (target_frame - frame1 as KeyFrameCurveValue)
-                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue),
+            amountcalc.calc(
+                (target_frame - frame1 as KeyFrameCurveValue)
+                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue)
+            ),
             0.,
             1.,
         )
@@ -38,7 +41,7 @@ pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_
 }
 
 
-pub fn interplate_frame_values_step<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
+pub fn interplate_frame_values_step<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
     let frame1 = curve.frames[pre];
     let value1 = curve.values.get(pre).unwrap();
@@ -50,8 +53,10 @@ pub fn interplate_frame_values_step<T: FrameDataValue>(curve: &FrameCurve<T>, ta
         0.0
     } else {
         KeyFrameCurveValue::clamp(
-            (target_frame - frame1 as KeyFrameCurveValue)
-                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue),
+            amountcalc.calc(
+                (target_frame - frame1 as KeyFrameCurveValue)
+                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue)
+            ),
             0.,
             1.,
         )

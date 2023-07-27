@@ -1,9 +1,9 @@
-use crate::{curve::frame::{FrameDataValue, KeyFrameCurveValue}, hermite};
+use crate::{curve::frame::{FrameDataValue, KeyFrameCurveValue}, hermite, amount::AnimationAmountCalc};
 
 use super::FrameCurve;
 
 
-pub fn interplate_minmaxcurve<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue) -> T {
+pub fn interplate_minmaxcurve<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next) = FrameCurve::<T>::get_pre_next_frame_index(&curve.frames, target_frame);
 
     let frame1 = curve.frames[pre];
@@ -19,8 +19,10 @@ pub fn interplate_minmaxcurve<T: FrameDataValue>(curve: &FrameCurve<T>, target_f
         0.0
     } else {
         KeyFrameCurveValue::clamp(
+            amountcalc.calc(
             (target_frame - frame1 as KeyFrameCurveValue)
-                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue),
+                / (frame2 as KeyFrameCurveValue - frame1 as KeyFrameCurveValue)
+            ),
             0.,
             1.,
         )

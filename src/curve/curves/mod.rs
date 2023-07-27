@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::easing::{EEasingMode, function::get_easing_call};
+use crate::{easing::{EEasingMode, function::get_easing_call}, amount::AnimationAmountCalc};
 
 use self::{easing_curve::interplate_easing, frames::interplate_frame_values, minmax_curve::interplate_minmaxcurve, cubic_splice::interplate_cubic_splice, cubic_bezier_curve::interplate_cubebezier};
 
@@ -65,7 +65,7 @@ pub struct FrameCurve<T: FrameDataValue> {
     pub max_frame: FrameIndex,
     /// 动画帧数
     pub frame_number: FrameIndex,
-    pub call: fn(&Self, KeyFrameCurveValue) -> T,
+    pub call: fn(&Self, KeyFrameCurveValue, &AnimationAmountCalc) -> T,
     pub easing: fn(KeyFrameCurveValue) -> KeyFrameCurveValue,
 }
 
@@ -97,10 +97,10 @@ impl<T: FrameDataValue> FrameCurve<T> {
     pub fn size(&self) -> usize {
         1 + 1 + 4 * 4 + 2 + 2 + 2 + 2 + 8 + 8
     }
-    pub fn interple(&self, target_frame: KeyFrameCurveValue) -> T {
+    pub fn interple(&self, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
         let call = &self.call;
         let target_frame = target_frame * self.design_frame_per_second as KeyFrameCurveValue;
-        call(&self, target_frame)
+        call(&self, target_frame, amountcalc)
     }
     
     /// 曲线 - 线性插值帧 - 无曲线描述,仅关键 帧-值
