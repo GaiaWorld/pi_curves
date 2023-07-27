@@ -105,7 +105,7 @@ impl EAmountMode {
 pub fn amount_step_start(x: KeyFrameCurveValue, param: &AmountParam) -> KeyFrameCurveValue {
     let t = 1.0 / param.0 as KeyFrameCurveValue;
     let ix = (x / t).floor();
-    println!("x: {}, t: {}, ix {}", x, t, ix);
+    // println!("x: {}, t: {}, ix {}", x, t, ix);
     let ix = (ix + 1.) * t;
 
     ix
