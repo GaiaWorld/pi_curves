@@ -22,7 +22,7 @@ impl AnimationAmountCalc {
         self.mode
     }
     pub fn from_steps(step: FrameIndex, mode: EStepMode) -> Self {
-        if step <= 1 {
+        if step < 1 {
             AnimationAmountCalc::default()
         } else {
             let mode = EAmountMode::Steps(mode);

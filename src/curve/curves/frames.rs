@@ -34,8 +34,8 @@ pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_
         amount,
     );
 
-    let call = &curve.easing;
-    amount = call(amount);
+    // let call = &curve.easing;
+    // amount = call(amount);
 
     value1.interpolate(&value2, amount)
 }

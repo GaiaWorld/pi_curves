@@ -6,8 +6,38 @@ mod test_frame {
 
     use std::ops::Add;
 
-    use pi_curves::{curve::{frame::{FrameDataValue, KeyFrameCurveValue, FrameValueScale}, frame_curve::FrameCurve, FrameIndex}, easing::{EEasingMode, function::sine_in_out}, amount::AnimationAmountCalc};
+    use pi_curves::{curve::{frame::{FrameDataValue, KeyFrameCurveValue, FrameValueScale}, frame_curve::FrameCurve, FrameIndex}, easing::{EEasingMode, function::sine_in_out}, amount::AnimationAmountCalc, steps::EStepMode};
     use test::Bencher;
+    
+    #[test]
+    fn test_step() {
+    
+        let frame_count = 60;
+        let mut curves = vec![];
+
+        // for i in 0..1_000_000 {
+            let mut key_frames = FrameCurve::curve_frame_values(60);
+            FrameCurve::curve_frame_values_frame(&mut key_frames, 0, 0.0f32);
+            FrameCurve::curve_frame_values_frame(&mut key_frames, 15 as FrameIndex, 1.0f32);
+            FrameCurve::curve_frame_values_frame(&mut key_frames, 30 as FrameIndex, 3.0f32);
+            FrameCurve::curve_frame_values_frame(&mut key_frames, 60 as FrameIndex, 4.0f32);
+
+            curves.push(
+                key_frames
+            );
+            
+            for i in 0..frame_count {
+                let v = curves[0].interple(i as f32 / 60., &AnimationAmountCalc::from_steps(1, EStepMode::JumpStart));
+                println!("{:?}", v);
+            }
+        // }
+        // b.iter(move || {
+        //     let mut v = 0.;
+        //     for i in 0..1_000_000 {
+        //         v = v + curves.get(i).unwrap().interple(10.0, &AnimationAmountCalc::default());
+        //     }
+        // });
+    }   
 
     #[bench]
     fn test_minmaxcurve_peformance(b: &mut Bencher) {
