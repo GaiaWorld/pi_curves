@@ -89,7 +89,7 @@ impl EAmountMode {
         }
     }
 
-    fn calc_amount_none(amount: KeyFrameCurveValue, param: &AmountParam) -> KeyFrameCurveValue{
+    fn calc_amount_none(amount: KeyFrameCurveValue, _param: &AmountParam) -> KeyFrameCurveValue{
         amount
     }
 

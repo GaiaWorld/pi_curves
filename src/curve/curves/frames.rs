@@ -12,7 +12,7 @@ pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_
     let frame2 = curve.frames[next];
     let value2 = curve.values.get(next).unwrap();
 
-    let mut amount = if frame1 == frame2 {
+    let amount = if frame1 == frame2 {
         0.0
     } else {
         

@@ -1,7 +1,7 @@
 use crate::{curve::{frame_curve::FrameCurve, frame::{FrameDataValue, KeyFrameCurveValue}}, bezier, amount::AnimationAmountCalc};
 
 
-pub fn interplate_cubebezier<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: f32, amountcalc: &AnimationAmountCalc) -> T {
+pub fn interplate_cubebezier<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: f32, _amountcalc: &AnimationAmountCalc) -> T {
     let amount = KeyFrameCurveValue::clamp(
         target_frame / curve.frame_number as KeyFrameCurveValue,
         0.,
