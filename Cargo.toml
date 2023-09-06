@@ -1,6 +1,6 @@
 [package]
 name = "pi_curves"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["baip <baip@gmail.com>"]
 edition = "2021"
 description = "Curve Calculation function library with simple dependencies."

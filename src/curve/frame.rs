@@ -69,7 +69,7 @@ impl KeyFrameDataTypeAllocator {
 pub trait FrameDataValue: Clone {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
     fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self;
-    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue) -> Self;
+    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue, frame_delta: KeyFrameCurveValue) -> Self;
     fn size() -> usize;
 }
 
@@ -77,7 +77,7 @@ impl<T: Clone + FrameValueScale + Add<Output = Self>> FrameDataValue for T {
     fn interpolate(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.scale(1.0 - amount) + rhs.scale(amount)
     }
-    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue) -> Self {
+    fn hermite(value1: &Self, tangent1: &Self, value2: &Self, tangent2: &Self, amount: KeyFrameCurveValue, frame_delta: KeyFrameCurveValue) -> Self {
         let _1 = 1 as KeyFrameCurveValue;
         let _2 = 2 as KeyFrameCurveValue;
         let _3 = 3 as KeyFrameCurveValue;
@@ -89,7 +89,7 @@ impl<T: Clone + FrameValueScale + Add<Output = Self>> FrameDataValue for T {
         let part3 = (cubed - (_2 * squared)) + amount;
         let part4 = cubed - squared;
 
-        return (((value1.scale(part1)) + (value2.scale(part2))) + (tangent1.scale(part3))) + (tangent2.scale(part4));
+        return (((value1.scale(part1)) + (value2.scale(part2))) + (tangent1.scale(part3 * frame_delta))) + (tangent2.scale(part4 * frame_delta));
     }
     fn append(&self, rhs: &Self, amount: KeyFrameCurveValue) -> Self {
         self.clone() + rhs.scale(amount)
