@@ -329,3 +329,45 @@ impl<T: FrameDataValue> FrameCurve<T> {
         }
     }
 }
+
+/// 获取目标帧的前后帧在帧数组中的序号
+pub fn get_pre_next_frame_index(
+    frames: &Vec<FrameIndex>,
+    target_frame: KeyFrameCurveValue,
+) -> (usize, usize) {
+    let total_num = frames.len();
+    let index = frames
+        .binary_search(&(target_frame as FrameIndex))
+        .unwrap_or_else(|x| x);
+    if index == 0 {
+        // println!("AA {}, {}", index, target_frame);
+        (index, index)
+    } else if index <= total_num - 1 {
+        // println!("BB {}, {}", index, target_frame);
+        (index - 1, index)
+    } else {
+        // println!("CC {}, {}", index, target_frame);
+        (index - 1, index - 1)
+    }
+}
+
+/// 曲线关键帧 - 线性插值帧 - 无曲线描述,仅关键 帧-值
+///
+/// * [framecurve] - 目标曲线
+/// * [frame] - 帧位置
+/// * [value] - 帧数值
+///
+pub fn curve_frame_index(frames: &mut Vec<FrameIndex>, frame: FrameIndex) -> (usize, FrameIndex, FrameIndex) {
+    let index = frames.binary_search(&frame).unwrap_or_else(|x| x);
+    frames.insert(index, frame);
+
+    let len = frames.len();
+    let min = frames[0];
+    let max = frames[len - 1];
+
+    (index, min, max)
+    // self.values.insert(index, value);
+    // self.min_frame = min;
+    // self.max_frame = max;
+    // self.frame_number = max - min;
+}

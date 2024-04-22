@@ -1,6 +1,6 @@
 [package]
 name = "pi_curves"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["baip <baip@gmail.com>"]
 edition = "2021"
 description = "Curve Calculation function library with simple dependencies."
@@ -15,5 +15,7 @@ readme = "README.md"
 [dependencies]
 nalgebra = "0.32"
 log = "0.4"
-env_logger = "0.9"
 serde = { version = "1.0", features = ["derive"], option=true }
+
+[dev-dependencies]
+env_logger  = "0.9"

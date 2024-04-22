@@ -16,14 +16,14 @@ pub fn interplate_cubebezier<T: FrameDataValue>(curve: &FrameCurve<T>, target_fr
         amount,
     );
 
-    log::trace!(
-        "cubebezier, target_frame: {}, x1: {:?}, y1: {:?}, x2: {:?}, y2s: {:?}",
-        target_frame,
-        curve.cubic_bezier_args[0],
-        curve.cubic_bezier_args[1],
-        curve.cubic_bezier_args[2],
-        curve.cubic_bezier_args[3],
-    );
+    // log::trace!(
+    //     "cubebezier, target_frame: {}, x1: {:?}, y1: {:?}, x2: {:?}, y2s: {:?}",
+    //     target_frame,
+    //     curve.cubic_bezier_args[0],
+    //     curve.cubic_bezier_args[1],
+    //     curve.cubic_bezier_args[2],
+    //     curve.cubic_bezier_args[3],
+    // );
 
     curve.value_offset.as_ref().unwrap().append(curve.value_scalar.as_ref().unwrap(), amount)
 }

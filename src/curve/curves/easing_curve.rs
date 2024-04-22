@@ -3,11 +3,11 @@ use crate::{curve::{frame_curve::FrameCurve, frame::{FrameDataValue, KeyFrameCur
 
 
 pub fn interplate_easing<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
-    log::trace!(
-        "easing, target_frame: {}, frame_number: {}",
-        target_frame,
-        curve.frame_number
-    );
+    // log::trace!(
+    //     "easing, target_frame: {}, frame_number: {}",
+    //     target_frame,
+    //     curve.frame_number
+    // );
     let mut amount = KeyFrameCurveValue::clamp(
         amountcalc.calc(
             target_frame / curve.frame_number as KeyFrameCurveValue
