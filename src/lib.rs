@@ -2,7 +2,7 @@ use curve::frame::KeyFrameCurveValue;
 use easing::{EEasingMode, function::*};
 use steps::EStepMode;
 
-
+#[cfg(feature = "nalgebra")]
 extern crate nalgebra;
 
 pub mod hermite;

@@ -1,7 +1,8 @@
 
 use std::ops::Add;
 
-use nalgebra::{Vector3, Vector4, Vector2};
+#[cfg(feature = "nalgebra")]
+use nalgebra::{Vector2, Vector3, Vector4};
 
 use super::ErrorCurve;
 
@@ -148,21 +149,24 @@ impl FrameValueScale for usize {
     }
 }
 
-/// usize
+#[cfg(feature = "nalgebra")]
+/// Vector2
 impl FrameValueScale for Vector2<f32> {
     fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
         (self * rhs) as Vector2<f32>
     }
 }
 
-/// usize
+#[cfg(feature = "nalgebra")]
+/// Vector3
 impl FrameValueScale for Vector3<f32> {
     fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
         (self * rhs) as Vector3<f32>
     }
 }
 
-/// usize
+#[cfg(feature = "nalgebra")]
+/// Vector4
 impl FrameValueScale for Vector4<f32> {
     fn scale(&self, rhs: KeyFrameCurveValue) -> Self {
         (self * rhs) as Vector4<f32>
