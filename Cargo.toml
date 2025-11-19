@@ -1,6 +1,6 @@
 [package]
 name = "pi_curves"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["bp0002 <bp950722@outlook.com>"]
 edition = "2021"
 description = "Curve Calculation function library with simple dependencies."
