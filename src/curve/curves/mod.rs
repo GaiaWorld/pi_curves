@@ -331,6 +331,7 @@ impl<T: FrameDataValue> FrameCurve<T> {
 }
 
 /// 获取目标帧的前后帧在帧数组中的序号
+#[inline]
 pub fn get_pre_next_frame_index(
     frames: &Vec<FrameIndex>,
     target_frame: KeyFrameCurveValue,
@@ -340,13 +341,10 @@ pub fn get_pre_next_frame_index(
         .binary_search(&(target_frame as FrameIndex))
         .unwrap_or_else(|x| x);
     if index == 0 {
-        // println!("AA {}, {}", index, target_frame);
         (index, index)
     } else if index <= total_num - 1 {
-        // println!("BB {}, {}", index, target_frame);
         (index - 1, index)
     } else {
-        // println!("CC {}, {}", index, target_frame);
         (index - 1, index - 1)
     }
 }
@@ -356,7 +354,7 @@ pub fn get_pre_next_frame_index(
 /// * [framecurve] - 目标曲线
 /// * [frame] - 帧位置
 /// * [value] - 帧数值
-///
+#[inline]
 pub fn curve_frame_index(frames: &mut Vec<FrameIndex>, frame: FrameIndex) -> (usize, FrameIndex, FrameIndex) {
     let index = frames.binary_search(&frame).unwrap_or_else(|x| x);
     frames.insert(index, frame);

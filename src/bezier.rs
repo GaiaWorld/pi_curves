@@ -2,12 +2,7 @@
 
 use nalgebra::RealField;
 
-pub fn cubic_bezier<T: RealField + Copy>(x1: T, y1: T, x2: T, y2: T, t: T) -> T {
-    let _x1 = x1;
-    let _x2 = x2;
-    let _y1 = y1;
-    let _y2 = y2;
-
+pub fn cubic_bezier<T: RealField + Copy>(_x1: T, _y1: T, _x2: T, _y2: T, t: T) -> T {
     let _0  = T::from_f32(0.0).unwrap();
     let _1  = T::from_f32(1.0).unwrap();
     let _2  = T::from_f32(2.0).unwrap();
@@ -27,14 +22,9 @@ pub fn cubic_bezier<T: RealField + Copy>(x1: T, y1: T, x2: T, y2: T, t: T) -> T 
         let x = f0 * refined_t3 + f1 * refined_t2 + f2 * refined_t;
         let slop = _1 / (_3 * f0 * refined_t2 + _2 * f1 * refined_t + f2);
 
-        // println!("A {:?}", refined_t);
         refined_t -= (x - t) * slop;
-        // println!("B {:?}", refined_t);
         refined_t = T::min(_1, T::max(_0, refined_t));
-        // println!("C {:?}", refined_t);
     };
-
-    println!("{:?}", [refined_t]);
 
     _3 * T::powi(_1 - refined_t, 2) * refined_t * _y1 + _3 * (_1 - refined_t) * T::powi(refined_t, 2) * _y2 + T::powi(refined_t, 3)
 }

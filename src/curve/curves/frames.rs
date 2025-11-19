@@ -6,21 +6,20 @@ use super::FrameCurve;
 
 pub fn interplate_frame_values<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next, amount) = _interplate_frame_values_amount(&curve.frames, target_frame, amountcalc);
-    let value1 = curve.values.get(pre).unwrap();
-    let value2 = curve.values.get(next).unwrap();
-    value1.interpolate(&value2, amount)
+    // let value1 = curve.values.get(pre).unwrap();
+    // let value2 = curve.values.get(next).unwrap();
+    // value1.interpolate(&value2, amount)
+    curve.values[pre].interpolate(&curve.values[next], amount)
 }
 
 
 pub fn interplate_frame_values_step<T: FrameDataValue>(curve: &FrameCurve<T>, target_frame: KeyFrameCurveValue, amountcalc: &AnimationAmountCalc) -> T {
     let (pre, next, amount) = _interplate_frame_values_amount(&curve.frames, target_frame, amountcalc);
-    let value1 = curve.values.get(pre).unwrap();
-    let value2 = curve.values.get(next).unwrap();
 
     if amount < 0.5 {
-        value1.clone()
+        curve.values[pre].clone()
     } else {
-        value2.clone()
+        curve.values[next].clone()
     }
 }
 
