@@ -1,6 +1,7 @@
 
 use crate::{EAmountMode, AmountParam, steps::EStepMode, curve::{frame::KeyFrameCurveValue, FrameIndex}, easing::EEasingMode};
 
+#[derive(Clone, Copy)]
 pub struct AnimationAmountCalc {
     mode: EAmountMode,
     param: AmountParam,
